@@ -1,0 +1,10 @@
+{
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "i-notice-bar": "../../static/iview/notice-bar/index",
+    "i-page": "../../static/iview/page/index",
+    "i-spin": "../../static/iview/spin/index",
+    "i-icon": "../../static/iview/icon/index",
+    "i-message": "../../static/iview/message/index"
+  }
+}

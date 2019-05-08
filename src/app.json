@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "pages/index/main",
+    "pages/detail/main",
+    "pages/notFound/main"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ff6700",
+    "navigationBarTitleText": "博客"
+  }
+}

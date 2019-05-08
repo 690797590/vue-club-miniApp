@@ -1,0 +1,10 @@
+{
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "i-spin": "../../static/iview/spin/index",
+    "i-icon": "../../static/iview/icon/index",
+    "i-page": "../../static/iview/page/index",
+    "i-modal": "../../static/iview/modal/index"
+  },
+  "navigationBarTitleText": "博客详情"
+}
