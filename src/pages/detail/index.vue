@@ -85,7 +85,7 @@
         data() {
             return {
                 id: "",
-                action1:[{name: '我知道了'}],
+                action1: [{name: '我知道了'}],
                 detail: {
                     releaseDate: '',
                     blogType: '',
@@ -110,6 +110,9 @@
         },
         methods: {
             async init() {
+                /**
+                 * 初始化
+                 **/
                 let self = this;
                 self.spinShow = true;
                 let api1 = this.getDetail();
@@ -119,8 +122,13 @@
                 wx.stopPullDownRefresh();
             },
             async getDetail() {
+                /**
+                 * 获取博客详情
+                 **/
                 let self = this;
                 try {
+                    this.lastBlog = "";
+                    this.nextBlog = "";
                     const result = await self.$Api.loadDetail({
                         id: self.id
                     })
@@ -140,6 +148,9 @@
                 }
             },
             async getComment() {
+                /**
+                 * 获取评论
+                 **/
                 let self = this;
                 try {
                     const result = await self.$Api.getCommentList({
@@ -160,6 +171,9 @@
                 }
             },
             handleChange(e) {
+                /**
+                 * 分页
+                 **/
                 if (this.spinShow) return;
                 const type = e.mp.detail.type;
                 if (type === 'next') {
@@ -173,14 +187,12 @@
                 /**
                  * 查看详情
                  **/
-                const jumpUrl = "/pages/detail/main?id=" + id;
-                wx.navigateTo({
-                    url: jumpUrl
-                });
+                this.id = id;
+                this.init();
             },
             reply() {
                 /**
-                 * 回复
+                 * 点击回复
                  **/
                 this.visibleModal = true;
 
@@ -196,6 +208,16 @@
              **/
             this.current = 1;
             this.init();
+        },
+        onShareAppMessage() {
+            /**
+             * 小程序转发
+             **/
+            return {
+                title: '我发现了一篇好文章，快来看看吧！',
+                path: '/pages/detail/main?id=' + this.id,
+                imageUrl: "/static/images/img_article_share.jpg"
+            }
         }
     }
 </script>

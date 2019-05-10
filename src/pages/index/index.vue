@@ -34,7 +34,7 @@
                 <i-spin size="large" fix v-if="spinShow"></i-spin>
             </div>
             <!--分页 start-->
-            <div class="page-container">
+            <div class="page-container" v-if="list.length>0">
                 <i-page i-class="page-inner" :current="current" :total="pageTotal" @change="handleChange">
                     <view slot="prev">
                         <i-icon type="return"></i-icon>
@@ -52,7 +52,6 @@
 </template>
 
 <script>
-
     export default {
         name: "index",
         props: {
@@ -74,34 +73,33 @@
                 pageSize: 10,//每页显示条数
                 list: [],
                 pageTotal: '', //总页数
-                notice: "本小程序仅供学习交流使用，禁止用于其他用途！",
+                notice: "本小程序由笨蛋小明开发，仅供学习交流使用，禁止用于其他用途！",
                 spinShow: false, //是否显示加载中，默认false不显示
             }
         },
         components: {},
         mounted() {
-            wx.showShareMenu();
             this.getPageList();
         },
         methods: {
-            async getPageList(){
+            async getPageList() {
                 let self = this;
                 self.spinShow = true;
-                try{
+                try {
                     const result = await self.$Api.loadList({
                         typeId: self.typeId,
                         pageSize: self.pageSize,
                         page: self.current,
                         releaseDateStr: ""
                     })
-                    if(result.code==0){
-                        console.log("列表数据>>>>>>",result);
+                    if (result.code == 0) {
+                        console.log("列表数据>>>>>>", result);
                         self.pageTotal = result.data.pageTotal;
                         self.list = result.data.list;
                         self.spinShow = false;
                         wx.stopPullDownRefresh();
                     }
-                }catch (e) {
+                } catch (e) {
                     console.log(e);
                     self.spinShow = false;
                     wx.stopPullDownRefresh();
@@ -135,10 +133,8 @@
             this.current = 1;
             this.getPageList();
         },
-        onShareAppMessage: function () {
-            return {
-                title: '我发现了一个优秀的博客，快来看看吧！',
-            }
+        onShareAppMessage() {
+            return this.Util.normalShare
         }
     }
 </script>

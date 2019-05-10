@@ -56,21 +56,22 @@ function httpsPromisify (fn) {
 
 /**
  * @Author WangYaming
- * @Class ShareApp
+ * @Class normalShare
  * @Description //TODO 分享小程序
  * @Date 18:16 2019-05-08
  * @Param
  * @return
  **/
-const ShareApp = () =>{
-    return {
-        title: '我发现了一个优秀的博客，快来看看吧！',
-    }
+
+const normalShare = {
+    title: '我发现了一个优秀的博客，快来看看吧！',
+    path: '/pages/index/main',
+    imageUrl: "/static/images/user.png",
 }
 
 module.exports = {
     formatDate,
     httpsPromisify,
-    ShareApp
+    normalShare
 }
 

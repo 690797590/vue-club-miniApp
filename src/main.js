@@ -11,7 +11,6 @@ import API from './utils/api.js';
 
 Vue.prototype.Util = Util;
 Vue.prototype.$Api = API;
-Vue.prototype.ShareApp = Util.ShareApp;
 export default {
 
 }
