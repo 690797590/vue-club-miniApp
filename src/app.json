@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/main",
     "pages/detail/main",
+    "pages/search/main",
     "pages/notFound/main"
   ],
   "window": {

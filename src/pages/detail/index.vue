@@ -14,12 +14,12 @@
                 <div class="more-item">
                     <span>上一篇：</span>
                     <span @click="viewDetail(lastBlog.id)" class="more-title">{{lastBlog.title}}</span>
-                    <span class="no-more" v-if="!lastBlog.id">已经是第一篇啦～</span>
+                    <span class="no-more" v-if="!lastBlog.id&&showMore">已经是第一篇啦～</span>
                 </div>
                 <div class="more-item">
                     <span>下一篇：</span>
                     <span @click="viewDetail(nextBlog.id)">{{nextBlog.title}}</span>
-                    <span v-if="!nextBlog.id">已经是最后一篇啦～</span>
+                    <span v-if="!nextBlog.id&&showMore">已经是最后一篇啦～</span>
                 </div>
             </div>
             <i-spin size="large" fix v-if="spinShow"></i-spin>
@@ -29,14 +29,14 @@
             <div class="mt"></div>
             <div class="top-title">
                 <span v-if="!hasReply">暂无评论</span>
-                <span v-if="hasReply">{{replyList.total}}条评论</span>
+                <span v-if="hasReply">{{replyInfo.total}}条评论</span>
                 <div class="write-comment" @click="reply">
                     <i-icon type="brush" size="16"/>
                     写评论
                 </div>
             </div>
             <div class="no-content" v-if="!hasReply">
-                <img src="/static/images/no_comment.png">
+                <img src="/static/images/img_no_comment.png">
                 <div>
                     智慧如你，不想
                     <span class="reply-btn" @click="reply">
@@ -47,7 +47,7 @@
             </div>
 
             <div class="reply-list" v-if="hasReply">
-                <div class="reply-item" v-for="(item,index) in replyList.list" :key="index">
+                <div class="reply-item" v-for="(item,index) in replyList" :key="index">
                     <span class="item-title">{{item.floor}}楼 {{item.userIp}}</span>
                     <span class="sub-title">网友：</span>
                     <span class="des">{{item.content}}</span>
@@ -59,17 +59,13 @@
             </div>
         </div>
         <!--评论 end-->
-        <div class="page-container">
-            <i-page i-class="page-inner" v-if="hasReply" :current="current" :total="pageTotal" @change="handleChange">
-                <view slot="prev">
-                    <i-icon type="return"></i-icon>
-                    上一页
-                </view>
-                <view slot="next">
-                    下一页
-                    <i-icon type="enter"></i-icon>
-                </view>
-            </i-page>
+        <div class="footer">
+            <div @click="loadMore" class="load-more" v-if="footerLoading==0">
+                加载更多
+                <i-icon type="unfold" size="16"/>
+            </div>
+            <i-load-more v-if="footerLoading==1"/>
+            <i-load-more i-class="loadEnd" tip="人家是有底线哒～" :loading="false" v-if="footerLoading==2"/>
         </div>
         <i-modal title="提示" :actions="action1" :visible="visibleModal" @click="handleClose1">
             <view>此功能暂未开放</view>
@@ -90,22 +86,27 @@
                     releaseDate: '',
                     blogType: '',
                 },
+                showMore: false, //是否显示上下篇，默认false不显示
                 lastBlog: '', //上一篇
                 nextBlog: '', //下一篇
-                replyList: {
-                    list: []
-                },
+                replyInfo:'',//回复信息
+                replyList: [],
                 current: 1,//当前页
-                pageTotal: 1,//总页数
                 pageSize: 3,//每页显示条数
                 spinShow: false, //是否显示加载中，默认false不显示
                 hasReply: false, //是否有回复，默认false无回复
                 visibleModal: false, //提示弹窗
+                footerLoading: -1, //页底提示状态；0：显示加载更多，1：显示加载中，2：显示到底提示
             }
         },
         components: {},
         mounted() {
+            this.replyInfo = '';
+            this.replyList = [];
+            this.current = 1;
+            this.footerLoading = -1;
             this.id = this.$mp.query.id;
+            this.hasReply = false;
             this.init();
         },
         methods: {
@@ -129,6 +130,7 @@
                 try {
                     this.lastBlog = "";
                     this.nextBlog = "";
+                    this.showMore = false;
                     const result = await self.$Api.loadDetail({
                         id: self.id
                     })
@@ -141,7 +143,7 @@
                         if (result.data.nextBlog) {
                             self.nextBlog = result.data.nextBlog;
                         }
-
+                        this.showMore = true;
                     }
                 } catch (e) {
                     console.log(e);
@@ -160,35 +162,42 @@
                     })
                     if (result.code == 0) {
                         console.log("回复数据>>>>>>", result);
-                        self.replyList = result.data;
-                        if (result.data.list.length > 0) {
-                            self.pageTotal = result.data.pageTotal;
+                        self.replyInfo = result.data;
+                        self.replyList.push.apply(self.replyList,result.data.list);
+                        if (self.replyList.length > 0) {
+                            self.footerLoading = 0;
                             self.hasReply = true;
+                        }
+                        if (result.data.page == result.data.pageTotal) {
+                            self.footerLoading = 2;
                         }
                     }
                 } catch (e) {
                     console.log(e);
                 }
             },
-            handleChange(e) {
-                /**
-                 * 分页
-                 **/
-                if (this.spinShow) return;
-                const type = e.mp.detail.type;
-                if (type === 'next') {
-                    this.current += 1;
-                } else if (type === 'prev') {
-                    this.current -= 1;
-                }
-                this.getComment();
-            },
             viewDetail(id) {
                 /**
                  * 查看详情
                  **/
+                this.replyInfo = '';
+                this.replyList = [];
+                this.current = 1;
+                this.footerLoading = -1;
+                this.id = this.$mp.query.id;
+                this.hasReply = false;
                 this.id = id;
+                this.current =1;
                 this.init();
+            },
+            loadMore() {
+                /**
+                 * 加载更多
+                 **/
+                this.replyList.list = [];
+                this.footerLoading = 1;
+                this.current += 1;
+                this.getComment();
             },
             reply() {
                 /**

@@ -1,5 +1,21 @@
 <template>
     <div class="index">
+        <!--search start-->
+        <div class="search-wrap" @click="search">
+            <div class="search-box">
+                <div class="search-icon">
+                    <img src="/static/images/search_icon.png" alt="search">
+                </div>
+                <div class="search-input">
+                    <input disabled maxlength="20" name="keyword" type="text"
+                           placeholder="请输入想要查询的关键字...">
+                </div>
+            </div>
+            <div class="search-btn">
+                <span>搜索</span>
+            </div>
+        </div>
+        <!--search end-->
         <!--通知栏 start-->
         <i-notice-bar icon="systemprompt" closable loop>
             {{notice}}
@@ -33,20 +49,15 @@
                 </div>
                 <i-spin size="large" fix v-if="spinShow"></i-spin>
             </div>
-            <!--分页 start-->
-            <div class="page-container" v-if="list.length>0">
-                <i-page i-class="page-inner" :current="current" :total="pageTotal" @change="handleChange">
-                    <view slot="prev">
-                        <i-icon type="return"></i-icon>
-                        上一页
-                    </view>
-                    <view slot="next">
-                        下一页
-                        <i-icon type="enter"></i-icon>
-                    </view>
-                </i-page>
+            <div class="footer">
+                <div @click="loadMore" class="load-more" v-if="footerLoading==0">
+                    加载更多
+                    <i-icon type="unfold" size="16"/>
+                </div>
+                <i-load-more v-if="footerLoading==1"/>
+                <i-load-more i-class="loadEnd" tip="人家是有底线哒～" :loading="false" v-if="footerLoading==2"/>
+                <i-load-more tip="暂无数据" :loading="false" v-if="footerLoading==3"/>
             </div>
-            <!--分页 end-->
         </div>
     </div>
 </template>
@@ -72,9 +83,9 @@
                 current: 1,//当前页
                 pageSize: 10,//每页显示条数
                 list: [],
-                pageTotal: '', //总页数
                 notice: "本小程序由笨蛋小明开发，仅供学习交流使用，禁止用于其他用途！",
                 spinShow: false, //是否显示加载中，默认false不显示
+                footerLoading: -1, //页底提示状态；0：显示加载更多，1：显示加载中，2：显示到底提示，3：显示无更多数据
             }
         },
         components: {},
@@ -95,7 +106,15 @@
                     if (result.code == 0) {
                         console.log("列表数据>>>>>>", result);
                         self.pageTotal = result.data.pageTotal;
-                        self.list = result.data.list;
+                        self.list.push.apply(self.list,result.data.list);
+                        if (self.list.length > 0) {
+                            self.footerLoading = 0;
+                        } else {
+                            self.footerLoading = 3;
+                        }
+                        if (result.data.page == result.data.pageTotal) {
+                            self.footerLoading = 2;
+                        }
                         self.spinShow = false;
                         wx.stopPullDownRefresh();
                     }
@@ -105,14 +124,12 @@
                     wx.stopPullDownRefresh();
                 }
             },
-            handleChange(e) {
-                if (this.spinShow) return;
-                const type = e.mp.detail.type;
-                if (type === 'next') {
-                    this.current += 1;
-                } else if (type === 'prev') {
-                    this.current -= 1;
-                }
+            loadMore() {
+                /**
+                 * 加载更多
+                 **/
+                this.footerLoading = 1;
+                this.current += 1;
                 this.getPageList();
             },
             viewDetail(id) {
@@ -123,6 +140,15 @@
                 wx.navigateTo({
                     url: jumpUrl
                 });
+            },
+            search() {
+                /**
+                 * 跳转搜索
+                 **/
+                const searchUrl = "/pages/search/main";
+                wx.navigateTo({
+                    url: searchUrl
+                });
             }
         }
         ,
@@ -130,6 +156,7 @@
             /**
              * 下拉刷新
              **/
+            this.list = [];
             this.current = 1;
             this.getPageList();
         },

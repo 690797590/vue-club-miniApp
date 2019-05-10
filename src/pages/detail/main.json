@@ -3,8 +3,8 @@
   "usingComponents": {
     "i-spin": "../../static/iview/spin/index",
     "i-icon": "../../static/iview/icon/index",
-    "i-page": "../../static/iview/page/index",
-    "i-modal": "../../static/iview/modal/index"
+    "i-modal": "../../static/iview/modal/index",
+    "i-load-more": "../../static/iview/load-more/index"
   },
   "navigationBarTitleText": "博客详情"
 }

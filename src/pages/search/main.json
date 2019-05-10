@@ -1,10 +1,9 @@
 {
   "enablePullDownRefresh": true,
   "usingComponents": {
-    "i-notice-bar": "../../static/iview/notice-bar/index",
     "i-spin": "../../static/iview/spin/index",
     "i-icon": "../../static/iview/icon/index",
-    "i-message": "../../static/iview/message/index",
     "i-load-more": "../../static/iview/load-more/index"
-  }
+  },
+  "navigationBarTitleText": "搜索"
 }

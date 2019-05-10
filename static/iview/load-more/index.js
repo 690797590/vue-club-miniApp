@@ -1,6 +1,6 @@
 Component({
     externalClasses: ['i-class'],
-
+    addGlobalClass: true,
     properties: {
         loading: {
             type: Boolean,
