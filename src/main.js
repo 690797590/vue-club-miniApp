@@ -8,7 +8,7 @@ const app = new Vue(App)
 app.$mount()
 import Util from './utils/util.js';
 import API from './utils/api.js';
-
+Vue.prototype.globalData = getApp().globalData; //全局变量
 Vue.prototype.Util = Util;
 Vue.prototype.$Api = API;
 export default {
